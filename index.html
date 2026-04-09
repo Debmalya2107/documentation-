@@ -344,6 +344,7 @@
             }
         }
     </style>
+<base target="_blank">
 </head>
 <body>
     <div class="container">
@@ -800,6 +801,206 @@
                     </div>
 
                 </div>
+            <!-- MODEL 4 -->
+            <div class="model-card">
+                <div class="model-header">
+                    <h2>Model 4: Desk Inventory Monitoring System (phone cam)</h2>
+                    <div class="subtitle">Real-Time Desk Environment Monitoring | YOLOv8 Object Detection | Flask + OpenCV Architecture</div>
+                    <a href="model4.ipynb" download class="download-btn">
+                        <span>Download Notebook</span>
+                    </a>
+                </div>
+
+                <div class="model-content">
+
+                    <!-- 1. What is this model -->
+                    <div class="section">
+                        <div class="section-title">1. The "What": System Overview</div>
+                        <p style="margin-bottom: 15px; color: #555;">A real-time desk monitoring system that uses Computer Vision to ensure the environment remains "clean" during an exam or task.</p>
+                        <ul class="data-list">
+                            <li><strong>Smart Detection:</strong> Unlike standard security cameras that flag any movement, this model understands object identity</li>
+                            <li><strong>Digital Inventory:</strong> Creates a digital "inventory" of the desk and ensures no unauthorized items are introduced</li>
+                            <li><strong>Movement Tolerant:</strong> Allows natural movements (writing, moving copy, picking up pen) without triggering false alarms</li>
+                            <li><strong>Person-Agnostic:</strong> Ignores the person and focuses only on objects that matter</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Key Advantage:</strong> Handles occlusion intelligently—if your hand covers your pen briefly, the AI doesn't scream "Cheating!" immediately.
+                        </div>
+                    </div>
+
+                    <!-- 2. Why this approach -->
+                    <div class="section">
+                        <div class="section-title">2. The "Why": Technical Rationale</div>
+                        <p style="margin-bottom: 15px; color: #555;">Why not simple motion detection or background subtraction?</p>
+                        <ul class="data-list">
+                            <li><strong>Motion Detection Fails:</strong> Simple pixel comparison fails the moment you move your hand or lean in</li>
+                            <li><strong>Robust Object Focus:</strong> ML approach ignores the person and tracks only relevant objects</li>
+                            <li><strong>Occlusion Handling:</strong> Smart enough to understand temporary object disappearance (under hand, moved aside)</li>
+                            <li><strong>Context Awareness:</strong> Distinguishes between authorized movement (writing) and unauthorized objects (phone)</li>
+                        </ul>
+                    </div>
+
+                    <!-- 3. Technical Workflow -->
+                    <div class="section">
+                        <div class="section-title">3. The "How": A-Z Technical Workflow</div>
+
+                        <div style="margin-bottom: 20px;">
+                            <strong style="color: var(--color-highlight);">A. The "Brain" (YOLOv8)</strong>
+                            <ul class="data-list" style="margin-top: 8px;">
+                                <li><strong>Architecture:</strong> You Only Look Once - state-of-the-art Deep Learning model for object detection</li>
+                                <li><strong>Training:</strong> Pre-trained on millions of images recognizing 80 common COCO categories</li>
+                                <li><strong>Classes:</strong> Phones (Class 67), Books (Class 73), laptops, cups, and other desk items</li>
+                                <li><strong>Inference:</strong> Single-pass detection with bounding boxes and confidence scores</li>
+                            </ul>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <strong style="color: var(--color-highlight);">B. Setting the "Baseline" (Reference Inventory)</strong>
+                            <ul class="data-list" style="margin-top: 8px;">
+                                <li><strong>Initialization:</strong> User uploads a photo of their clean desk setup</li>
+                                <li><strong>Single Pass Inference:</strong> YOLO identifies every object in the reference image</li>
+                                <li><strong>Storage:</strong> Objects stored in Python Dictionary format</li>
+                                <li><strong>Example:</strong> <code>{'book': 1, 'pen': 1, 'laptop': 1}</code> becomes the "Authorized Set"</li>
+                            </ul>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <strong style="color: var(--color-highlight);">C. The Live Monitoring Loop (30 FPS)</strong>
+                            <ul class="data-list" style="margin-top: 8px;">
+                                <li><strong>Capture:</strong> Webcam feed at ~30 frames per second</li>
+                                <li><strong>Detection:</strong> YOLO identifies all objects in current frame</li>
+                                <li><strong>Filtering:</strong> Person class (Class 0) is explicitly ignored to prevent body interference</li>
+                                <li><strong>Inventory Count:</strong> Real-time counting of current visible items</li>
+                            </ul>
+                        </div>
+
+                        <strong style="color: var(--color-highlight); display: block; margin-bottom: 10px;">D. The Comparison Logic (Subset Logic)</strong>
+                        <div class="architecture-flow">
+                            <div class="flow-item">Live Inventory</div>
+                            <span class="flow-arrow">vs</span>
+                            <div class="flow-item">Baseline Set</div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-item">Decision</div>
+                        </div>
+
+                        <div class="metric-grid" style="margin-top: 15px;">
+                            <div class="metric-item" style="border-left: 4px solid #4CAF50;">
+                                <div class="metric-label" style="color: #4CAF50; font-weight: bold;">SAFE CASE</div>
+                                <div class="metric-value" style="font-size: 0.9rem; color: #555;">Live ⊆ Baseline</div>
+                                <p style="font-size: 0.8rem; color: #777; margin-top: 5px;">"I see 1 pen. I expected 1 pen. This is fine."</p>
+                            </div>
+                            <div class="metric-item" style="border-left: 4px solid #FFC107;">
+                                <div class="metric-label" style="color: #FFC107; font-weight: bold;">OCCLUSION CASE</div>
+                                <div class="metric-value" style="font-size: 0.9rem; color: #555;">Live ⊂ Baseline</div>
+                                <p style="font-size: 0.8rem; color: #777; margin-top: 5px;">"Pen under hand. Allow temporary disappearance."</p>
+                            </div>
+                            <div class="metric-item" style="border-left: 4px solid #F44336;">
+                                <div class="metric-label" style="color: #F44336; font-weight: bold;">VIOLATION CASE</div>
+                                <div class="metric-value" style="font-size: 0.9rem; color: #555;">Live ⊄ Baseline</div>
+                                <p style="font-size: 0.8rem; color: #777; margin-top: 5px;">"Phone detected! Not in baseline. ALERT!"</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <strong style="color: var(--color-highlight);">E. Persistence and Stability (Anti-Flicker)</strong>
+                            <ul class="data-list" style="margin-top: 8px;">
+                                <li><strong>Problem:</strong> AI can flicker—momentary false detections</li>
+                                <li><strong>Solution:</strong> Discrepancy Counter mechanism</li>
+                                <li><strong>Threshold:</strong> Must see "cheating" for 10 consecutive frames (~1-2 seconds)</li>
+                                <li><strong>Result:</strong> Reliable alerts without "jumpy" behavior</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 4. Tech Stack -->
+                    <div class="section">
+                        <div class="section-title">4. Technology Stack</div>
+                        <div class="brain-grid">
+                            <div class="brain-card">
+                                <h4>Python</h4>
+                                <span class="algorithm">Core Language</span>
+                                <p>The foundation language for AI processing, data handling, and system logic.</p>
+                            </div>
+                            <div class="brain-card">
+                                <h4>Flask</h4>
+                                <span class="algorithm">Web Server</span>
+                                <p>Hosts the UI dashboard, handles image upload for baseline setting, manages video streaming.</p>
+                            </div>
+                            <div class="brain-card">
+                                <h4>OpenCV</h4>
+                                <span class="algorithm">Computer Vision</span>
+                                <p>Interfaces with webcam, captures frames at 30 FPS, draws bounding boxes and text overlays.</p>
+                            </div>
+                            <div class="brain-card">
+                                <h4>Ultralytics YOLOv8</h4>
+                                <span class="algorithm">AI Model</span>
+                                <p>The actual "brain" that sees and identifies objects. Pre-trained on COCO dataset.</p>
+                            </div>
+                            <div class="brain-card">
+                                <h4>Threading</h4>
+                                <span class="algorithm">Concurrency</span>
+                                <p>Allows AI video processing to run in background while website remains responsive.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Processing Pipeline -->
+                    <div class="section">
+                        <div class="section-title">5. Processing Pipeline</div>
+                        <div class="architecture-flow">
+                            <div class="flow-item">Upload Baseline</div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-item">YOLO Detection</div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-item">Store Inventory</div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-item">Live Webcam</div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-item">Compare Logic</div>
+                            <span class="flow-arrow">→</span>
+                            <div class="flow-item">Alert if Violation</div>
+                        </div>
+                        <ul class="data-list" style="margin-top: 15px;">
+                            <li><strong>Step 1:</strong> User uploads clean desk photo via Flask web interface</li>
+                            <li><strong>Step 2:</strong> YOLOv8 runs inference, detects all objects</li>
+                            <li><strong>Step 3:</strong> Python dictionary stores authorized item counts</li>
+                            <li><strong>Step 4:</strong> Webcam captures live feed at 30 FPS in separate thread</li>
+                            <li><strong>Step 5:</strong> Each frame compared against baseline using subset logic</li>
+                            <li><strong>Step 6:</strong> If unauthorized object persists for 10+ frames, trigger red alert</li>
+                        </ul>
+                    </div>
+
+                    <!-- 6. Key Features -->
+                    <div class="section">
+                        <div class="section-title">6. Key Features & Capabilities</div>
+                        <ul class="data-list">
+                            <li><strong>Smart Occlusion Handling:</strong> Understands when objects are temporarily hidden under hands</li>
+                            <li><strong>Person Filtering:</strong> Explicitly ignores Class 0 (person) to focus on desk objects only</li>
+                            <li><strong>Quantity Enforcement:</strong> Detects if more items appear than authorized (e.g., 2 books instead of 1)</li>
+                            <li><strong>Real-Time Performance:</strong> 30 FPS processing with minimal latency</li>
+                            <li><strong>Non-Intrusive:</strong> Allows natural exam behaviors (writing, page turning) without false alarms</li>
+                            <li><strong>Visual Feedback:</strong> Bounding boxes and status indicators on live video feed</li>
+                        </ul>
+                    </div>
+
+                    <!-- 7. Deployment -->
+                    <div class="section">
+                        <div class="section-title">7. Deployment Specifications</div>
+                        <ul class="data-list">
+                            <li><strong>Input Source:</strong> Phone camera or USB webcam via OpenCV VideoCapture</li>
+                            <li><strong>Web Interface:</strong> Flask-based dashboard for baseline upload and live monitoring</li>
+                            <li><strong>Processing:</strong> Background threading for continuous AI inference</li>
+                            <li><strong>Output:</strong> Real-time video stream with overlay annotations and alert status</li>
+                            <li><strong>Alert Mechanism:</strong> Visual indicators (red/green status) after 10-frame persistence check</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Use Case:</strong> Ideal for remote exams, certification tests, and any scenario requiring desk environment integrity without restricting natural movement.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
             </div>
 
         </div>
