@@ -1,1 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Exam Proctoring Models - Technical Documentation</title>
+    <style>
+        :root {
+            --color-primary: #73A5CA;
+            --color-bg: #FEFDDF;
+            --color-accent: #FFC81E;
+            --color-highlight: #E87F24;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-bg);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 30px;
+            background-color: var(--color-primary);
+            border-radius: 12px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .models-wrapper {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+
+        .model-card {
+            background-color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-top: 8px solid var(--color-highlight);
+            position: relative;
+        }
+
+        .model-header {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 25px 30px;
+            position: relative;
+        }
+
+        .model-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .model-header .subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .download-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--color-accent);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            background-color: var(--color-highlight);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .model-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            color: var(--color-highlight);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--color-accent);
+            border-radius: 50%;
+        }
+
+        .data-list {
+            list-style: none;
+        }
+
+        .data-list li {
+            padding: 10px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #555;
+        }
+
+        .data-list li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--color-accent);
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background-color: var(--color-bg);
+            border-left: 4px solid var(--color-accent);
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-item {
+            background-color: var(--color-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--color-highlight);
+        }
+
+        .architecture-flow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .flow-item {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            color: var(--color-highlight);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .confusion-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .confusion-matrix th, .confusion-matrix td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .confusion-matrix th {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .confusion-matrix td {
+            background-color: #fafafa;
+        }
+
+        .confusion-matrix .highlight-cell {
+            background-color: var(--color-accent);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .model-header h2 {
+                font-size: 1.4rem;
+            }
+            
+            .model-header {
+                padding-bottom: 60px;
+            }
+            
+            .download-btn {
+                top: auto;
+                bottom: 15px;
+                right: 15px;
+                left: 15px;
+                justify-content: center;
+            }
+            
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Exam Proctoring System</h1>
+            <p>Full A-Z Technical Documentation for Core AI Architectures</p>
+        </header>
+
+        <div class="models-wrapper">
+            
+            <!-- MODEL 1 -->
+            <div class="model-card">
+                <div class="model-header">
+                    <h2>Model 1: Head Pose & Gaze Estimation</h2>
+                    <div class="subtitle">Offline AI Proctoring System | Deep Feedforward Neural Network (MLP) | PyTorch & MediaPipe</div>
+                    <a href="model1.ipynb" download class="download-btn">
+                        <span>Download Notebook</span>
+                    </a>
+                </div>
+                
+                <div class="model-content">
+                    
+                    <!-- 1. Core Architecture -->
+                    <div class="section">
+                        <div class="section-title">1. Core Architecture & Algorithms</div>
+                        <p style="margin-bottom: 15px; color: #555;">Multi-stage pipeline converting raw video into actionable cheating alerts.</p>
+                        <ul class="data-list">
+                            <li><strong>Feature Extraction:</strong> MediaPipe FaceMesh (Refined Landmarks enabled) extracting 468 3D facial landmarks</li>
+                            <li><strong>Model Type:</strong> Custom Deep Feedforward Neural Network (Multi-Layer Perceptron) built in PyTorch</li>
+                            <li><strong>Input Layer:</strong> 936 neurons (468 landmarks x 2 coordinates X, Y)</li>
+                            <li><strong>Hidden Layer 1:</strong> 1024 neurons</li>
+                            <li><strong>Hidden Layer 2:</strong> 512 neurons</li>
+                            <li><strong>Hidden Layer 3:</strong> 256 neurons</li>
+                            <li><strong>Hidden Layer 4:</strong> 128 neurons</li>
+                            <li><strong>Output Layer:</strong> 3 neurons (Pitch, Yaw, Roll)</li>
+                            <li><strong>Activation:</strong> ReLU after every hidden layer</li>
+                            <li><strong>Stabilization:</strong> BatchNorm1d for training stability</li>
+                            <li><strong>Regularization:</strong> Dropout (30% down to 10%)</li>
+                            <li><strong>Optimization:</strong> AdamW optimizer</li>
+                            <li><strong>Loss Function:</strong> SmoothL1Loss (Huber Loss) to handle spatial outliers</li>
+                            <li><strong>Preprocessing:</strong> StandardScaler (Scikit-Learn) for distance-invariance</li>
+                        </ul>
+                    </div>
+
+                    <!-- 2. Dataset & Training -->
+                    <div class="section">
+                        <div class="section-title">2. Dataset & Training Details</div>
+                        <ul class="data-list">
+                            <li><strong>Dataset Source:</strong> 300W-LP dataset</li>
+                            <li><strong>Sample Count:</strong> 4,286 high-quality samples</li>
+                            <li><strong>Hardware:</strong> Dual Tesla T4 GPU cluster (T4*2) using nn.DataParallel</li>
+                            <li><strong>Batch Size:</strong> 256 images</li>
+                            <li><strong>Scheduler:</strong> ReduceLROnPlateau</li>
+                            <li><strong>Early Stopping:</strong> 100 epochs max, halt if validation plateaus for 15 rounds</li>
+                            <li><strong>Inference Speed:</strong> 30+ FPS on standard local CPU</li>
+                        </ul>
+                    </div>
+
+                    <!-- 3. Problem Solved -->
+                    <div class="section">
+                        <div class="section-title">3. The Problem Solved</div>
+                        <p style="margin-bottom: 15px; color: #555;">Privacy-Preserving Exam Integrity detection system.</p>
+                        <ul class="data-list">
+                            <li><strong>Head Pose Deviations:</strong> Detects looking away from the screen (Pitch/Yaw deviations)</li>
+                            <li><strong>Eye Gaze Shifts:</strong> Side-eyeing notes or devices using mathematical Iris Tracking ratio</li>
+                            <li><strong>Privacy:</strong> No data leaves the device; entire 200MB system runs locally</li>
+                        </ul>
+                    </div>
+
+                    <!-- 4. Performance Metrics -->
+                    <div class="section">
+                        <div class="section-title">4. Comprehensive Performance Metrics</div>
+                        <p style="margin-bottom: 15px; color: #555;">Dual-metric approach: Regression for angles, Classification for behavior.</p>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <strong style="color: var(--color-highlight);">Stage A: Raw AI Precision (Regression)</strong>
+                            <div class="metric-grid">
+                                <div class="metric-item">
+                                    <div class="metric-label">Pitch MAE</div>
+                                    <div class="metric-value">0.09</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">Yaw MAE</div>
+                                    <div class="metric-value">0.10</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">Roll MAE</div>
+                                    <div class="metric-value">0.06</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">Overall MSE</div>
+                                    <div class="metric-value">0.0086</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <strong style="color: var(--color-highlight);">Stage B: Cheating Detection (Classification with 5-frame temporal smoothing)</strong>
+                            <div class="metric-grid">
+                                <div class="metric-item">
+                                    <div class="metric-label">Accuracy</div>
+                                    <div class="metric-value">98.0%</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">Precision</div>
+                                    <div class="metric-value">99.0%</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">Recall</div>
+                                    <div class="metric-value">95.0%</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">Specificity</div>
+                                    <div class="metric-value">99.0%</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">F1 Score</div>
+                                    <div class="metric-value">0.97</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">AUC Score</div>
+                                    <div class="metric-value">>0.98</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-label">MCC Score</div>
+                                    <div class="metric-value">>0.95</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <strong style="color: var(--color-highlight); display: block; margin-bottom: 10px;">Confusion Matrix (Expected per 100 test events):</strong>
+                        <table class="confusion-matrix">
+                            <tr>
+                                <th>Predicted \ Actual</th>
+                                <th>Cheating</th>
+                                <th>Focused</th>
+                            </tr>
+                            <tr>
+                                <td><strong>Cheating (Alarm)</strong></td>
+                                <td class="highlight-cell">20 (True Positive)</td>
+                                <td>1 (False Positive)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Focused (Safe)</strong></td>
+                                <td>1 (False Negative)</td>
+                                <td class="highlight-cell">78 (True Negative)</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- 5. Engineering Logic -->
+                    <div class="section">
+                        <div class="section-title">5. Engineering Logic (Post-Model)</div>
+                        <ul class="data-list">
+                            <li><strong>Temporal Smoothing:</strong> 5-frame buffer prevents flickering alarms from micro-movements</li>
+                            <li><strong>Personal Calibration:</strong> 30-frame initialization sets student's natural posture as (0,0) baseline</li>
+                            <li><strong>Pure-Math Eye Tracker:</strong> Geometric algorithm using MediaPipe Iris tracker (ratio between pupil and eye corners)</li>
+                            <li><strong>Thresholds:</strong> Flags "side-eye" if ratio below 0.38 or above 0.62</li>
+                            <li><strong>Offline Security:</strong> No internet required; runs in Python virtual environment</li>
+                            <li><strong>System Footprint:</strong> Less than 200MB storage</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- MODEL 2 -->
+            <div class="model-card">
+                <div class="model-header">
+                    <h2>Model 2: Cheating Behavior Detection</h2>
+                    <div class="subtitle">ResNet50V2-GRU Cheating Detection System | Hybrid Deep Transfer Learning</div>
+                    <a href="model2.ipynb" download class="download-btn">
+                        <span>Download Notebook</span>
+                    </a>
+                </div>
+                
+                <div class="model-content">
+                    
+                    <!-- 1. Performance Metrics -->
+                    <div class="section">
+                        <div class="section-title">1. Performance Metrics (Results)</div>
+                        <p style="margin-bottom: 15px; color: #555;">Comprehensive evaluation using Confusion Matrix metrics.</p>
+                        <div class="metric-grid">
+                            <div class="metric-item">
+                                <div class="metric-label">Accuracy</div>
+                                <div class="metric-value">1.0000</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Precision</div>
+                                <div class="metric-value">1.0000</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Recall/Sensitivity</div>
+                                <div class="metric-value">1.0000</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">F1-Score</div>
+                                <div class="metric-value">1.0000</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Specificity</div>
+                                <div class="metric-value">High</div>
+                            </div>
+                        </div>
+                        <div class="highlight-box">
+                            <strong>Note:</strong> Research focused on Accuracy, Recall, Precision, and F1-score. Specific AUC and MCC values were not reported in the experimental results.
+                        </div>
+                    </div>
+
+                    <!-- 2. Dataset & Temporal -->
+                    <div class="section">
+                        <div class="section-title">2. Dataset & Temporal Specifications</div>
+                        <ul class="data-list">
+                            <li><strong>Dataset Source:</strong> MSU Online Exam Proctoring (OEP) dataset from Michigan State University Computer Vision Lab</li>
+                            <li><strong>Volume:</strong> 560 video recordings</li>
+                            <li><strong>Composition:</strong> 24 participants (15 actors simulating cheating, 9 students in real exam scenarios)</li>
+                            <li><strong>Annotation:</strong> Start time, end time, and specific label for cheating behavior type</li>
+                            <li><strong>Temporal Logic:</strong> Videos decomposed into RGB frames; specific number of frames (n) extracted for multidimensional matrix</li>
+                            <li><strong>Sequence Creation:</strong> Buffer of 30 frames for temporal window</li>
+                            <li><strong>Data Imbalance:</strong> 284 talking instances vs 15 phone call instances</li>
+                            <li><strong>Handling:</strong> Deep transfer learning manages imbalance without data resampling</li>
+                        </ul>
+                    </div>
+
+                    <!-- 3. Operational Efficiency -->
+                    <div class="section">
+                        <div class="section-title">3. Operational Efficiency (Training vs Testing)</div>
+                        <ul class="data-list">
+                            <li><strong>Training Time:</strong> ResNet50V2-GRU faster to train than ResNet50V2-LSTM variant</li>
+                            <li><strong>Testing Time (Latency):</strong> Superior classification effectiveness and faster testing times than all other tested models</li>
+                            <li><strong>CPU Performance:</strong> Approximately 0.3752 seconds for testing phase</li>
+                        </ul>
+                    </div>
+
+                    <!-- 4. Algorithmic Methodology -->
+                    <div class="section">
+                        <div class="section-title">4. Algorithmic Methodology</div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: var(--color-highlight);">A. Feature Extraction: ResNet50V2</strong>
+                            <ul class="data-list" style="margin-top: 8px;">
+                                <li>50-layer deep Convolutional Neural Network with "skip connections"</li>
+                                <li>Solves degradation problem in very deep networks</li>
+                                <li>Transfer Learning with ImageNet weights</li>
+                                <li>Most robust among VGG16 and EfficientNet</li>
+                                <li>Recognizes complex patterns: hands, phones, paper textures</li>
+                            </ul>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: var(--color-highlight);">B. Temporal Analysis: GRU (Gated Recurrent Unit)</strong>
+                            <ul class="data-list" style="margin-top: 8px;">
+                                <li>Simplified version of LSTM using update and reset gates</li>
+                                <li>Manages sequential information flow</li>
+                                <li>Analyzes sequence of frames for action recognition</li>
+                                <li>Significantly faster in training and testing than LSTM version</li>
+                            </ul>
+                        </div>
+
+                        <strong style="color: var(--color-highlight); display: block; margin-bottom: 10px;">Processing Pipeline:</strong>
+                        <div class="architecture-flow">
+                            <div class="flow-item">Video Preprocessing</div>
+                            <span class="flow-arrow">></span>
+                            <div class="flow-item">K-fold Validation</div>
+                            <span class="flow-arrow">></span>
+                            <div class="flow-item">Feature Extraction</div>
+                            <span class="flow-arrow">></span>
+                            <div class="flow-item">Temporal Analysis</div>
+                            <span class="flow-arrow">></span>
+                            <div class="flow-item">Classification</div>
+                        </div>
+
+                        <ul class="data-list">
+                            <li><strong>Decomposition:</strong> Input video broken into individual RGB frames</li>
+                            <li><strong>Preprocessing:</strong> Frames resized to 224x224 pixels, normalized (0-1 scale)</li>
+                            <li><strong>Spatial Analysis:</strong> ResNet50V2 extracts abstract visual features</li>
+                            <li><strong>Temporal Analysis:</strong> GRU determines if movement pattern indicates cheating</li>
+                            <li><strong>Classification:</strong> Final Softmax layer converts output into probabilities</li>
+                        </ul>
+                    </div>
+
+                    <!-- 5. Detected Classes -->
+                    <div class="section">
+                        <div class="section-title">5. Detected Output Classes</div>
+                        <ul class="data-list">
+                            <li><strong>Use of books/notes/paper:</strong> Detecting unauthorized physical materials</li>
+                            <li><strong>Talking with someone:</strong> Identifying verbal communication in exam hall</li>
+                            <li><strong>Accessing the Internet:</strong> Monitoring unauthorized web usage on computer</li>
+                            <li><strong>Calling a friend:</strong> Detecting phone use for voice communication</li>
+                            <li><strong>Using mobile/electronic devices:</strong> General detection of phones or gadgets</li>
+                        </ul>
+                    </div>
+
+                    <!-- 6. Deployment -->
+                    <div class="section">
+                        <div class="section-title">6. System Requirements for Deployment</div>
+                        <ul class="data-list">
+                            <li><strong>Backend:</strong> Flask or Django framework</li>
+                            <li><strong>Hardware:</strong> GPU-accelerated environment (NVIDIA Tesla T4) for real-time frame processing</li>
+                            <li><strong>Input:</strong> RTSP stream (CCTV) or Mobile Camera feed</li>
+                        </ul>
+                        <div class="highlight-box">
+                            <strong>Objective:</strong> Provide continuous 360-degree monitoring addressing human proctor limitations (restricted fields of vision, fatigue).
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Section highlighting on click
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.cursor = 'pointer';
+                section.addEventListener('click', function() {
+                    sections.forEach(s => {
+                        s.style.backgroundColor = 'transparent';
+                        s.style.boxShadow = 'none';
+                    });
+                    
+                    this.style.backgroundColor = '#FEFDDF';
+                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                    this.style.borderRadius = '8px';
+                    this.style.padding = '20px';
+                    this.style.transition = 'all 0.3s ease';
+                    
+                    setTimeout(() => {
+                        this.style.backgroundColor = 'transparent';
+                        this.style.boxShadow = 'none';
+                        this.style.padding = '0';
+                        this.style.paddingBottom = '20px';
+                    }, 1200);
+                });
+            });
+
+            // Metric items hover effect
+            const metrics = document.querySelectorAll('.metric-item');
+            metrics.forEach(metric => {
+                metric.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                    this.style.boxShadow = '0 8px 20px rgba(231, 127, 36, 0.25)';
+                    this.style.transition = 'all 0.3s ease';
+                });
+                
+                metric.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Flow items animation
+            const flowItems = document.querySelectorAll('.flow-item');
+            flowItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Download button click feedback
+            const downloadBtns = document.querySelectorAll('.download-btn');
+            downloadBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<span>Downloading...</span>';
+                    this.style.backgroundColor = 'var(--color-highlight)';
+                    this.style.color = 'white';
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.backgroundColor = 'var(--color-accent)';
+                        this.style.color = '#333';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
